@@ -7,7 +7,7 @@
 		<title>reveal.js</title>
 
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/night.css">
+		<link rel="stylesheet" href="css/theme/black.css">
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -25,36 +25,177 @@
 		<div class="reveal">
 			<div class="slides">
 				<section data-background-image="assets/images/backpack.jpg">
-					<h1> The knapsack problem</h1>
+					<h1>Le problème du sac à dos</h1>
 					Alexis Rabilloud, Bastien Guyl, Marc Zominy
 				</section>
 				<section>
 					<section data-markdown>
-						<h2>What's the problem ?</h2>
+						<h2>Présentation du problème</h2>
 					</section>
 					<section>
 						<img data-src="assets/images/knapsack.svg.png">
 					</section>
-					<section></section>
 				</section>
-				<section>Slide 2</section>
+				<section>
+					<section>
+						<h2>Modélisation du problème</h2>
+					</section>
+					<section>
+						<h3>Définitions</h3>
+						Soit $n$ objets comprenant {<i>poids</i>, <i>valeur</i>, <i>occurrence</i>} $\in \mathbb{N}^3$</li><br>
+						Soit un sac avec une capacité $c \in \mathbb{N}$</li><br>
+						<br>
+						Soit $PC$ le poids cumulé des objets pris
+						$$PC = \sum\limits_{i=0}^{n-1} occurrence_i \times poids_i$$
+						<br>
+						Soit $VC$ la valeur cumulée des objets pris
+						$$VC = \sum\limits_{i=0}^{n-1} occurrence_i \times valeur_i$$
+					</section>
+					<section>
+						<h3>Contraintes</h3>
+						En respectant la contrainte
+						$$PC \leq c$$
+						<br>
+						On cherche à trouver les $occurrences$ tel que 
+						$$\sum\limits_{i=0}^{n-1} occurrence_i \times valeur_i = \max (VC)$$
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Présentation du solveur</h2>
+					</section>
+					<section>
+						<img data-src="assets/images/choco.png">
+					</section>
+					<section>
+						Modélisation dans <i>Choco solver</i>
+						<pre><code class="java" data-trim data-noescape> 
+public void defineModel(int[] weights, int[] energies, int capacity) {
+	//Création du modèle
+	int n = weights.length;
+	Model model = new Model("Backpack problem with "+n+" objects.");
+
+	//Création des variables
+	IntVar[] occurrences = new IntVar[n];
+	IntVar energySum, weightSum;
+
+	//On définit les domaines de définition des variables
+	for(int i = 0; i < n; i++){
+		occurrences[i] = model.intVar("O"+i, 0, 1);
+	}
+	weightSum = model.intVar("ws", 0, n * capacity);
+	energySum = model.intVar("es", 0, n * capacity);
+
+	//On ajoutes les contraintes à notre modèle
+	model.scalar(occurrences, weights, "=", weightSum).post();
+	model.scalar(occurrences, energies, "=", energySum).post();
+	model.arithm(weightSum, "<=", capacity).post();}
+						</code></pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Résultats et optimisation</h2>
+					</section>
+					<section>
+						<h3>Résultats de la stratégie par défault</h3>
+					</section>
+					<section>
+						<h3>Stratégie 1 : Algorithme glouton sur le poids</h3>
+						<pre><code class="java">
+s.setSearch(Search.intVarSearch(
+  // Sélection de la variable avec la valeur la plus forte
+  (VariableSelector&lt;IntVar&gt;) variables -> {
+    IntVar ret = null;
+    int maxValue = -1;
+    for(int i = 0; i < variables.length; i++) {
+      if (!variables[i].isInstantiated()) {
+        if (energies[i] > maxValue) {
+          ret = variables[i];
+          maxValue = energies[i];
+        }
+      }
+    }
+    return ret;
+  },
+  // value selector
+  var -> var.getUB(),
+  // variables to branch on
+  occurrences
+));
+						</code></pre>
+					</section>
+					<section>
+						Résultats strat1
+					</section>
+					<section>
+						<h3>Stratégie 2 : Algorithme glouton sur le ratio valeur/poids</h3>
+						<pre><code class="java">
+s.setSearch(Search.intVarSearch(
+  // Sélection de la variable avec le ration le plus fort
+  (VariableSelector&lt;IntVar&gt;) variables -> {
+    IntVar ret = null;
+    double maxValue = -1;
+    for(int i = 0; i < variables.length; i++) {
+      if (!variables[i].isInstantiated()) {
+        if (ratio[i] > maxValue) {
+          ret = variables[i];
+          maxValue = ratio[i];
+        }
+      }
+    }
+    return ret;
+  },
+  // value selector
+  var -> var.getUB(),
+  // variables to branch on
+  occurences
+));
+						</code></pre>
+					</section>
+					<section>
+						Résultats strat1
+					</section>
+				</section>
+				<section>
+					<section><h1>Conclusion</h1></section>
+					<section>
+						<h2>Ouverture</h2>
+						<ul>
+							<li>
+								D'autres algorithmes à mettre en places (programmation dynamique, métaheuristique, ...)
+							</li>
+							<br>
+							<li>
+								Evolution du problème (occurrence multiples, combinaison d'objets, ...)
+							</li>
+						</ul>
+					</section>
+					<section><h1>Merci de votre attention</h1></section>
+				</section>
 			</div>
 		</div>
 
 		<script src="lib/js/head.min.js"></script>
 		<script src="js/reveal.js"></script>
-
+		
 		<script>
 			// More info https://github.com/hakimel/reveal.js#configuration
 			Reveal.initialize({
 				history: true,
+
+				math: {
+					mathjax: 'https://cdn.mathjax.org/mathjax/latest/MathJax.js',
+					cofig: 'TeX-AMS-MML_HTMLorMML'
+				},
 
 				// More info https://github.com/hakimel/reveal.js#dependencies
 				dependencies: [
 					{ src: 'plugin/markdown/marked.js' },
 					{ src: 'plugin/markdown/markdown.js' },
 					{ src: 'plugin/notes/notes.js', async: true },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); }},
+					{ src: 'plugin/math/math.js', async: true }
 				]
 			});
 		</script>
