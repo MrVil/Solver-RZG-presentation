@@ -29,7 +29,7 @@
 					Alexis Rabilloud, Bastien Guyl, Marc Zominy
 				</section>
 				<section>
-					<section data-markdown>
+					<section>
 						<h2>Présentation du problème</h2>
 					</section>
 					<section>
@@ -95,10 +95,7 @@ public void defineModel(int[] weights, int[] energies, int capacity) {
 				</section>
 				<section>
 					<section>
-						<h2>Résultats et optimisation</h2>
-					</section>
-					<section>
-						<h3>Résultats de la stratégie par défault</h3>
+						<h2>Optimisation et résultats</h2>
 					</section>
 					<section>
 						<h3>Stratégie 1 : Algorithme glouton sur le poids</h3>
@@ -118,15 +115,12 @@ s.setSearch(Search.intVarSearch(
     }
     return ret;
   },
-  // value selector
+  // A cette valeur, on lui met la valeur maximale, ici 1
   var -> var.getUB(),
-  // variables to branch on
+  // Tableau de nos variables pour la fonction
   occurrences
 ));
 						</code></pre>
-					</section>
-					<section>
-						Résultats strat1
 					</section>
 					<section>
 						<h3>Stratégie 2 : Algorithme glouton sur le ratio valeur/poids</h3>
@@ -146,15 +140,30 @@ s.setSearch(Search.intVarSearch(
     }
     return ret;
   },
-  // value selector
+  // A cette valeur, on lui met la valeur maximale, ici 1
   var -> var.getUB(),
-  // variables to branch on
+  // Tableau de nos variables pour la fonction
   occurences
 ));
 						</code></pre>
 					</section>
 					<section>
-						Résultats strat1
+						<img data-src="assets/images/graph1.jpg">
+					</section>
+					<section>
+						<img data-src="assets/images/graph2.jpg">
+					</section>
+					<section>
+						<img data-src="assets/images/graph3.jpg">
+					</section>
+					<section>
+						<img data-src="assets/images/graph4.jpg">
+					</section>
+					<section>
+						<img data-src="assets/images/graph5.jpg">
+					</section>
+					<section>
+						<img data-src="assets/images/graph6.jpg">
 					</section>
 				</section>
 				<section>
